@@ -1,0 +1,34 @@
+name: Deploy Lomakone Preview
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Publish preview
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout preview repository
+        uses: actions/checkout@v4
+
+      - name: Download verified Lomakone build
+        run: |
+          mkdir -p site
+          curl --fail --location --retry 3 \
+            'https://sdmntprnorthcentralus.oaiusercontent.com/files/00000000-e720-822f-916
