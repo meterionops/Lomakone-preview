@@ -1,9 +1,9 @@
 name: Deploy Lomakone Preview
 
 on:
-  push:
-    branches:
-      - main
+  repository_dispatch:
+    types:
+      - publish-preview
   workflow_dispatch:
 
 permissions:
@@ -19,16 +19,32 @@ jobs:
   deploy:
     name: Publish preview
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - name: Checkout preview repository
+      - name: Checkout published site
         uses: actions/checkout@v4
+        with:
+          ref: site
 
-      - name: Download verified Lomakone build
+      - name: Verify published files
         run: |
-          mkdir -p site
-          curl --fail --location --retry 3 \
-            'https://sdmntprnorthcentralus.oaiusercontent.com/files/00000000-e720-822f-916
+          test -f index.html
+          test -d assets
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
