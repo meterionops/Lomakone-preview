@@ -1,6 +1,9 @@
 name: Deploy Lomakone Preview
 
 on:
+  push:
+    branches:
+      - main
   repository_dispatch:
     types:
       - publish-preview
